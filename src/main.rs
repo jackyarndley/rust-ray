@@ -6,10 +6,30 @@ mod ray;
 use vec3::Vec3;
 use ray::Ray;
 
+fn hit_sphere(center: Vec3, radius: f64, ray: Ray) -> f64 {
+    let oc: Vec3 = ray.origin - center;
+    let a: f64 = ray.direction.dot(ray.direction);
+    let b: f64 = 2.0 * oc.dot(ray.direction);
+    let c: f64 = oc.dot(oc) - radius * radius;
+    let discriminant: f64 = b * b - 4.0 * a * c;
+
+    if discriminant < 0.0 {
+        -1.0
+    } else {
+        (-b - discriminant.sqrt()) / (2.0 * a)
+    }
+}
+
 fn color(r: Ray) -> Vec3 {
-    let unit_direction: Vec3 = r.direction.unit();
-    let t: f64 = 0.5 * (unit_direction.y + 1.0);
-    Vec3::new(1.0, 1.0, 1.0) * (1.0 - t) + Vec3::new(0.5, 0.7, 1.0) * t
+    let t: f64 = hit_sphere(Vec3::new(0.0, 0.0, -1.0), 0.5, r);
+    if t > 0.0 {
+        let normal: Vec3 = (r.point_at_parameter(t) - Vec3::new(0.0, 0.0, -1.0)).unit();
+        return Vec3::new(normal.x + 1.0, normal.y + 1.0, normal.z + 1.0) * 0.5
+    } else {
+        let unit_direction: Vec3 = r.direction.unit();
+        let t: f64 = 0.5 * (unit_direction.y + 1.0);
+        Vec3::new(1.0, 1.0, 1.0) * (1.0 - t) + Vec3::new(0.5, 0.7, 1.0) * t
+    }
 }
 
 fn main() {
