@@ -1,4 +1,6 @@
 use std::ops;
+use rand::{thread_rng, Rng};
+use rand::prelude::ThreadRng;
 
 #[derive(Copy, Clone)]
 pub struct Vec3 {
@@ -38,6 +40,15 @@ impl Vec3 {
             y: self.z * v.x - self.x * v.z,
             z: self.x * v.y - self.y * v.x
         }
+    }
+
+    pub fn random_in_unit_sphere(mut rng: ThreadRng) -> Vec3 {
+        let mut p = Vec3::new(rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>()) * 2.0 - Vec3::new(1.0, 1.0, 1.0);
+
+        while p.squared_length() >= 1.0 {
+            p = Vec3::new(rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>()) * 2.0 - Vec3::new(1.0, 1.0, 1.0);
+        }
+        p
     }
 }
 
@@ -87,5 +98,15 @@ impl ops::Neg for Vec3 {
     type Output = Vec3;
     fn neg(self) -> Vec3 {
         Vec3::new(-self.x, -self.y, -self.z)
+    }
+}
+
+impl ops::AddAssign for Vec3 {
+    fn add_assign(&mut self, other: Vec3) {
+        *self = Self {
+            x: self.x + other.x,
+            y: self.y + other.y,
+            z: self.z + other.z
+        }
     }
 }
