@@ -14,6 +14,9 @@ pub enum Material {
     Metal {
         attenuation: Vec3,
         fuzziness: f64
+    },
+    Dielectric {
+        refraction: f64
     }
 }
 
@@ -37,6 +40,32 @@ impl Material {
                 let b = scattered.direction.dot(n) > 0.0;
 
                 (scattered, *attenuation, b)
+            }
+            Material::Dielectric {
+                refraction
+            } => {
+                let reflected = reflect(r.direction, n);
+
+                let (outward_normal, ni_over_nt, cosine) = if r.direction.length() > 0.0 {
+                    (
+                        -n,
+                        *refraction,
+                        refraction * r.direction.dot(n) / r.direction.length()
+                    )
+                } else {
+                    (
+                        n,
+                        1.0 / *refraction,
+                        -(r.direction.dot(n)) / r.direction.length()
+                    )
+                };
+                let scattered = match refract
+
+
+
+                let attenuation = Vec3::new(1.0, 1.0, 0.0);
+
+
             }
         }
     }
