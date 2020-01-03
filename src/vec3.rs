@@ -1,5 +1,5 @@
 use std::ops;
-use rand::{thread_rng, Rng};
+use rand::Rng;
 use rand::prelude::ThreadRng;
 
 #[derive(Copy, Clone)]

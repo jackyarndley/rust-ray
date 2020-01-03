@@ -4,6 +4,7 @@ mod vec3;
 mod ray;
 mod hitable;
 mod camera;
+mod material;
 
 use vec3::Vec3;
 use ray::Ray;
@@ -11,12 +12,17 @@ use camera::Camera;
 use hitable::Hitable;
 use crate::hitable::{Sphere, HitableList};
 use rand::{thread_rng, Rng};
+use crate::material::Material;
 
-fn color(r: Ray, world: &dyn Hitable) -> Vec3 {
+fn color(r: Ray, world: &dyn Hitable, depth: usize) -> Vec3 {
     match world.hit(r, 0.001, std::f64::INFINITY) {
-        Some(hit_record) => {
-            let target = hit_record.p + hit_record.normal + Vec3::random_in_unit_sphere(thread_rng());
-            color(Ray::new(hit_record.p, target - hit_record.p), world) * 0.5
+        Some((hit_record, material)) => {
+            let (scattered, attenuation, b) = material.scatter(r, hit_record.normal, hit_record.p);
+            if depth < 50 && b {
+                color(scattered, world, depth + 1) * attenuation
+            } else {
+                Vec3::new(0.0, 0.0, 0.0)
+            }
         }
         None => {
             let unit_direction: Vec3 = r.direction.unit();
@@ -27,8 +33,8 @@ fn color(r: Ray, world: &dyn Hitable) -> Vec3 {
 }
 
 fn main() {
-    let width: usize = 800;
-    let height: usize = 400;
+    let width: usize = 200;
+    let height: usize = 100;
     let max_color: f64 = 255.999;
     let samples = 100;
 
@@ -39,8 +45,10 @@ fn main() {
 
     let mut rng = thread_rng();
 
-    list.push(Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5)));
-    list.push(Box::new(Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0)));
+    list.push(Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5, Material::Lambertian {attenuation: Vec3::new(0.8, 0.3, 0.3)})));
+    list.push(Box::new(Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0, Material::Lambertian {attenuation: Vec3::new(0.8, 0.8, 0.0)})));
+    list.push(Box::new(Sphere::new(Vec3::new(1.0, 0.0, -1.0), 0.5, Material::Metal {attenuation: Vec3::new(0.8, 0.6, 0.2), fuzziness: 1.0})));
+    list.push(Box::new(Sphere::new(Vec3::new(-1.0, 0.0, -1.0), 0.5, Material::Metal {attenuation: Vec3::new(0.8, 0.8, 0.8), fuzziness: 0.3})));
 
     let world = HitableList::new(list);
 
@@ -54,7 +62,7 @@ fn main() {
                 let u: f64 = (i as f64 + rng.gen::<f64>()) / width as f64;
                 let v: f64 = (j as f64 + rng.gen::<f64>()) / height as f64;
                 let r: Ray = cam.get_ray(u, v);
-                col += color(r, &world);
+                col += color(r, &world, 0);
             }
 
             col = col / samples as f64;
