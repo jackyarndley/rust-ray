@@ -1,5 +1,3 @@
-use std::fs;
-
 mod vec3;
 mod ray;
 mod hitable;
@@ -62,13 +60,10 @@ fn random_scene(mut rng: ThreadRng) -> HitableList {
 }
 
 fn main() {
-    let width: usize = 1280;
-    let height: usize = 720;
+    let width: usize = 1200;
+    let height: usize = 500;
     let max_color: f64 = 255.999;
     let samples = 100;
-
-    // Begin PPM file header
-    let mut buffer = format!("P3\n{} {}\n 255\n", width, height);
 
     let world = random_scene(thread_rng());
 
@@ -83,7 +78,7 @@ fn main() {
         .into_par_iter()
         .rev()
         .map(|j| {
-            let mut part = String::new();
+            let mut part = Vec::with_capacity(width * 3);
             for i in 0..width {
                 let mut rng = thread_rng();
                 let mut col: Vec3 = Vec3::new(0.0, 0.0, 0.0);
@@ -102,17 +97,14 @@ fn main() {
                 let ig: u8 = (max_color * col.y) as u8;
                 let ib: u8 = (max_color * col.z) as u8;
 
-                part = format!("{}{} {} {}\n", part, ir, ig, ib);
+                part.push(ir);
+                part.push(ig);
+                part.push(ib);
             }
             part
         })
-        .collect::<Vec<String>>()
-        .join("");
+        .flatten()
+        .collect::<Vec<u8>>();
 
-    buffer = format!("{}{}", buffer, pixels);
-
-    match fs::write("output.ppm", buffer) {
-        Err(_) => eprintln!("Could not generate the picture!"),
-        Ok(_) => ()
-    }
+    image::save_buffer("output.png", &pixels, width as u32, height as u32, image::RGB(8)).unwrap();
 }
