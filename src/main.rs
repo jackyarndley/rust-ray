@@ -8,18 +8,32 @@ use vec3::Vec3;
 use ray::Ray;
 use camera::Camera;
 use hitable::Hitable;
-use crate::hitable::{Sphere, HitableList};
+use hitable::{Sphere, HitableList};
 use rand::{thread_rng, Rng};
-use crate::material::Material;
+use material::Material;
 use rand::prelude::ThreadRng;
 use rayon::prelude::*;
+
+// Clamps a value between two bounds
+fn clamp<T: PartialOrd>(value: T, lower: T, upper: T) -> T {
+    if value < lower {
+        lower
+    } else if value > upper {
+        upper
+    } else {
+        value
+    }
+}
 
 fn color(r: Ray, world: &dyn Hitable, depth: usize) -> Vec3 {
     match world.hit(r, 0.001, std::f64::INFINITY) {
         Some((hit_record, material)) => {
             let (scattered, attenuation, b) = material.scatter(r, hit_record.normal, hit_record.p);
+
             if depth < 50 && b {
                 color(scattered, world, depth + 1) * attenuation
+            } else if depth < 50 {
+                attenuation
             } else {
                 Vec3::new(0.0, 0.0, 0.0)
             }
@@ -41,12 +55,14 @@ fn random_scene(mut rng: ThreadRng) -> HitableList {
             let choose_mat = rng.gen::<f64>();
             let center = Vec3::new(a as f64 + 0.9 * rng.gen::<f64>(), 0.2, b as f64 + 0.9 * rng.gen::<f64>());
             if (center - Vec3::new(4.0, 0.2, 0.0)).length() > 0.9 {
-                if choose_mat < 0.8 {
+                if choose_mat < 0.75 {
                     list.push(Box::new(Sphere::new(center, 0.2, Material::Lambertian {attenuation: Vec3::new(rng.gen::<f64>() * rng.gen::<f64>(), rng.gen::<f64>() * rng.gen::<f64>(), rng.gen::<f64>() * rng.gen::<f64>())})));
-                } else if choose_mat < 0.95 {
+                } else if choose_mat < 0.90 {
                     list.push(Box::new(Sphere::new(center, 0.2, Material::Metal {attenuation: Vec3::new(0.5 * (1.0 + rng.gen::<f64>()), 0.5 * (1.0 + rng.gen::<f64>()), 0.5 * (1.0 + rng.gen::<f64>())), fuzziness: 0.5 * rng.gen::<f64>()})));
-                } else {
+                } else if choose_mat < 0.975 {
                     list.push(Box::new(Sphere::new(center, 0.2, Material::Dielectric {refraction: 1.5})));
+                } else {
+                    list.push(Box::new(Sphere::new(center, 0.2, Material::Emission {color: Vec3::new(rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>()) * 10.0})));
                 }
             }
         }
@@ -63,7 +79,7 @@ fn main() {
     let width: usize = 1200;
     let height: usize = 500;
     let max_color: f64 = 255.999;
-    let samples = 100;
+    let samples = 500;
 
     let world = random_scene(thread_rng());
 
@@ -93,14 +109,15 @@ fn main() {
                 col = col / samples as f64;
                 col = Vec3::new(col.x.sqrt(), col.y.sqrt(), col.z.sqrt());
 
-                let ir: u8 = (max_color * col.x) as u8;
-                let ig: u8 = (max_color * col.y) as u8;
-                let ib: u8 = (max_color * col.z) as u8;
+                let ir: u8 = (max_color * clamp(col.x, 0.0, 1.0)) as u8;
+                let ig: u8 = (max_color * clamp(col.y, 0.0, 1.0)) as u8;
+                let ib: u8 = (max_color * clamp(col.z, 0.0, 1.0)) as u8;
 
                 part.push(ir);
                 part.push(ig);
                 part.push(ib);
             }
+            println!("row: {}", j);
             part
         })
         .flatten()

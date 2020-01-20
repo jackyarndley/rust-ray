@@ -33,6 +33,9 @@ pub enum Material {
     },
     Dielectric {
         refraction: f64
+    },
+    Emission {
+        color: Vec3
     }
 }
 
@@ -55,7 +58,13 @@ impl Material {
                 // Check to make sure the ray is not reflecting in the same direction
                 let b = scattered.direction.dot(n) > 0.0;
 
-                (scattered, *attenuation, b)
+                let color = if b {
+                    *attenuation
+                } else {
+                    Vec3::new(0.0, 0.0, 0.0)
+                };
+
+                (scattered, color, b)
             }
             Material::Dielectric {
                 refraction
@@ -89,6 +98,11 @@ impl Material {
                 };
                 let attenuation = Vec3::new(1.0, 1.0, 1.0);
                 (scattered, attenuation, true)
+            }
+            Material::Emission {
+                color
+            } => {
+                (Ray::new(p, p), *color, false)
             }
         }
     }
