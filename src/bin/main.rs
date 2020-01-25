@@ -10,7 +10,7 @@ use rayon::prelude::*;
 fn color(r: Ray, world: &dyn Hitable, depth: usize) -> Vec3 {
     match world.hit(r, 0.001, std::f64::INFINITY) {
         Some((hit_record, material)) => {
-            let (scattered, attenuation, b) = material.scatter(r, hit_record.normal, hit_record.p);
+            let (scattered, attenuation, b) = material.scatter(r, hit_record.normal, hit_record.point);
 
             if depth < 50 && b {
                 color(scattered, world, depth + 1) * attenuation

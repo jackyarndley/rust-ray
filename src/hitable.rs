@@ -19,7 +19,7 @@ impl HitData {
 }
 
 pub trait Hitable: Sync {
-    fn hit(&self, ray: Ray, t_min: f64, t_max: f64) -> Option<(HitRecord, &Material)>;
+    fn hit(&self, ray: Ray, t_min: f64, t_max: f64) -> Option<(HitData, &Material)>;
 }
 
 pub struct Sphere {
@@ -83,12 +83,12 @@ impl HitableList {
 }
 
 impl Hitable for HitableList {
-    fn hit(&self, ray: Ray, t_min: f64, t_max: f64) -> Option<(HitRecord, &Material)> {
+    fn hit(&self, ray: Ray, t_min: f64, t_max: f64) -> Option<(HitData, &Material)> {
         let mut closest_so_far = t_max;
         let mut res = None;
 
         for h in self.list.iter() {
-            if let Some((hit_record, material)) = h.hit(r, t_min, closest_so_far) {
+            if let Some((hit_record, material)) = h.hit(ray, t_min, closest_so_far) {
                 closest_so_far = hit_record.t;
                 res = Some((hit_record, material));
             }
