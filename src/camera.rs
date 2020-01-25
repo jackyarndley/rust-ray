@@ -1,16 +1,6 @@
 use crate::vec3::Vec3;
 use crate::ray::Ray;
-use rand::{thread_rng, Rng};
-
-fn random_in_unit_disk() -> Vec3 {
-    let mut rng = thread_rng();
-    let mut p = Vec3::new(rng.gen::<f64>(), rng.gen::<f64>(), 0.0) * 2.0 - Vec3::new(1.0, 1.0, 0.0);
-
-    while p.squared_length() >= 1.0 {
-        p = Vec3::new(rng.gen::<f64>(), rng.gen::<f64>(), 0.0) * 2.0 - Vec3::new(1.0, 1.0, 0.0);
-    }
-    p
-}
+use crate::util::random_in_unit_disk;
 
 pub struct Camera {
     lower_left_corner: Vec3,

@@ -2,24 +2,24 @@ use crate::ray::Ray;
 use crate::vec3::Vec3;
 use crate::material::Material;
 
-pub struct HitRecord {
-    t: f64,
-    pub p: Vec3,
+pub struct HitData {
+    pub t: f64,
+    pub point: Vec3,
     pub normal: Vec3,
 }
 
-impl HitRecord {
-    pub fn new(t: f64, p: Vec3, normal: Vec3) -> HitRecord {
-        HitRecord {
+impl HitData {
+    pub fn new(t: f64, point: Vec3, normal: Vec3) -> HitData {
+        HitData {
             t,
-            p,
+            point,
             normal
         }
     }
 }
 
 pub trait Hitable: Sync {
-    fn hit(&self, r: Ray, t_min: f64, t_max: f64) -> Option<(HitRecord, &Material)>;
+    fn hit(&self, ray: Ray, t_min: f64, t_max: f64) -> Option<(HitRecord, &Material)>;
 }
 
 pub struct Sphere {
@@ -39,7 +39,7 @@ impl Sphere {
 }
 
 impl Hitable for Sphere {
-    fn hit(&self, r: Ray, t_min: f64, t_max: f64) -> Option<(HitRecord, &Material)> {
+    fn hit(&self, r: Ray, t_min: f64, t_max: f64) -> Option<(HitData, &Material)> {
         let oc: Vec3 = r.origin - self.center;
         let a: f64 = r.direction.dot(r.direction);
         let b: f64 = oc.dot(r.direction);
@@ -52,14 +52,14 @@ impl Hitable for Sphere {
             if t1 < t_max && t1 > t_min {
                 let p = r.point_at_parameter(t1);
                 let n = (p - self.center) / self.radius;
-                Some((HitRecord::new(t1, p, n), &self.material))
+                Some((HitData::new(t1, p, n), &self.material))
             } else {
                 let t2 = (-b + discriminant.sqrt()) / a;
 
                 if t2 < t_max && t2 > t_min {
                     let p = r.point_at_parameter(t2);
                     let n = (p - self.center) / self.radius;
-                    Some((HitRecord::new(t2, p, n), &self.material))
+                    Some((HitData::new(t2, p, n), &self.material))
                 } else {
                     None
                 }
@@ -83,7 +83,7 @@ impl HitableList {
 }
 
 impl Hitable for HitableList {
-    fn hit(&self, r: Ray, t_min: f64, t_max: f64) -> Option<(HitRecord, &Material)> {
+    fn hit(&self, ray: Ray, t_min: f64, t_max: f64) -> Option<(HitRecord, &Material)> {
         let mut closest_so_far = t_max;
         let mut res = None;
 
