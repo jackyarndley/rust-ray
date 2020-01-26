@@ -1,7 +1,10 @@
-use crate::hitable::{HitableList, Hitable, Sphere};
+use crate::objects::{HitableList, Hitable, Sphere, Triangle};
 use crate::material::Material;
 use crate::vec3::Vec3;
 use rand::{Rng, thread_rng};
+use std::io::{BufReader, BufRead};
+use std::fs::File;
+use std::path::Path;
 
 // Clamps a value between two bounds
 pub fn clamp<T: PartialOrd>(value: T, lower: T, upper: T) -> T {
@@ -50,6 +53,44 @@ pub fn random_scene() -> HitableList {
     list.push(Box::new(Sphere::new(Vec3::new(0.0, 1.0, 0.0), 1.0, Material::Dielectric {refraction: 1.5})));
     list.push(Box::new(Sphere::new(Vec3::new(-4.0, 1.0, 0.0), 1.0, Material::Lambertian {attenuation: Vec3::new(0.4, 0.2, 0.1)})));
     list.push(Box::new(Sphere::new(Vec3::new(4.0, 1.0, 0.0), 1.0, Material::Metal {attenuation: Vec3::new(0.7, 0.6, 0.5), fuzziness: 0.0})));
+
+    HitableList::new(list)
+}
+
+pub fn random_scene2() -> HitableList {
+    let mut list: Vec<Box<dyn Hitable>> = vec![];
+    list.push(Box::new(Sphere::new(Vec3::new(0.0, -1000.0, 0.0), 1000.0, Material::Lambertian {attenuation: Vec3::new(0.5, 0.5, 0.5)})));
+    list.push(Box::new(Sphere::new(Vec3::new(0.0, 1.0, 0.0), 1.0, Material::Lambertian {attenuation: Vec3::new(0.1, 0.1, 1.0)})));
+    list.push(Box::new(Sphere::new(Vec3::new(5.0, 0.0, 0.0), 1.0, Material::Lambertian {attenuation: Vec3::new(0.1, 1.0, 0.1)})));
+    list.push(Box::new(Sphere::new(Vec3::new(0.0, 0.0, 5.0), 1.0, Material::Lambertian {attenuation: Vec3::new(1.0, 0.1, 0.1)})));
+
+    list.push(Box::new(Triangle::new(Vec3::new(0.0, 1.0, 0.0), Vec3::new(0.0, 0.0, 5.0), Vec3::new(5.0, 0.0, 0.0), Material::Lambertian {attenuation: Vec3::new(0.4, 0.2, 0.1)})));
+    list.push(Box::new(Triangle::new2(Vec3::new(0.0, 1.0, -1.0), Vec3::new(0.86602497100830078, 1.0, 0.5), Vec3::new(-0.86602497100830078, 1.0, 0.5), Vec3::new(0.0, 1.0, 0.0), Material::Lambertian {attenuation: Vec3::new(0.4, 0.2, 0.1)})));
+
+    let path = Path::new("untitled.obj");
+
+    let teapot = tobj::load_obj(path);
+    let (models, materials) = teapot.unwrap();
+
+    let mesh = &models[0].mesh;
+
+    for f in 0..mesh.indices.len() / 3 {
+        let position_index = 3 * mesh.indices[3 * f] as usize;
+        let position_index1 = 3 * mesh.indices[3 * f + 1] as usize;
+        let position_index2 = 3 * mesh.indices[3 * f + 2] as usize;
+
+        let element = Triangle::new2(
+            Vec3::new(mesh.positions[position_index] as f64, mesh.positions[position_index + 1] as f64, mesh.positions[position_index + 2] as f64),
+            Vec3::new(mesh.positions[position_index1] as f64, mesh.positions[position_index1 + 1] as f64, mesh.positions[position_index1 + 2] as f64),
+            Vec3::new(mesh.positions[position_index2] as f64, mesh.positions[position_index2 + 1] as f64, mesh.positions[position_index2 + 2] as f64),
+            Vec3::new(mesh.normals[position_index] as f64, mesh.normals[position_index + 1] as f64, mesh.normals[position_index + 2] as f64),
+            Material::Lambertian {
+                attenuation: Vec3::new(0.4, 0.4, 0.4),
+            }
+        );
+
+//        list.push(Box::new(element));
+    }
 
     HitableList::new(list)
 }
