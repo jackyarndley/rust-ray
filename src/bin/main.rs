@@ -2,7 +2,7 @@ use rust_ray::vec3::Vec3;
 use rust_ray::ray::Ray;
 use rust_ray::camera::Camera;
 use rust_ray::objects::Hitable;
-use rust_ray::util::{clamp, random_scene, random_scene2};
+use rust_ray::util::{clamp, random_scene2};
 
 use rand::{thread_rng, Rng};
 use rayon::prelude::*;
@@ -34,7 +34,7 @@ fn main() {
     let width: usize = 1200;
     let height: usize = 500;
     let max_color: f64 = 255.999;
-    let samples = 256;
+    let samples = 64;
 
     let world = random_scene2();
 

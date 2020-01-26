@@ -7,7 +7,6 @@ pub struct Triangle {
     v0: Vec3,
     v1: Vec3,
     v2: Vec3,
-    d:  f64,
     normal: Vec3,
     material: Material
 }
@@ -19,7 +18,6 @@ impl Triangle {
             v0,
             v1,
             v2,
-            d: normal.dot(v0),
             normal,
             material
         }
@@ -30,7 +28,6 @@ impl Triangle {
             v0,
             v1,
             v2,
-            d: normal.dot(v0),
             normal,
             material
         }
@@ -73,7 +70,5 @@ impl Hitable for Triangle {
         } else {
             None
         }
-
-
     }
 }

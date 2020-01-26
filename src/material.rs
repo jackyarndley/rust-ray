@@ -23,6 +23,7 @@ fn schlick(cosine: f64, refraction: f64) -> f64 {
 }
 
 // The attenuation here is the amount of each RGB colour which is dissipated with each bounce
+#[derive(Copy, Clone)]
 pub enum Material {
     Lambertian {
         attenuation: Vec3
