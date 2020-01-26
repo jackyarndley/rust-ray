@@ -39,43 +39,41 @@ impl Triangle {
 
 impl Hitable for Triangle {
     fn hit(&self, r: Ray, t_min: f64, t_max: f64) -> Option<(SurfaceInteraction, &Material)> {
-        let normal_dot_direction = self.normal.dot(r.direction);
+        let eps = 0.0000001;
 
-        if normal_dot_direction.abs() < 0.00001 {
+        let edge1 = self.v1 - self.v0;
+        let edge2 = self.v2 - self.v0;
+        let h = r.direction.cross(edge2);
+        let a = edge1.dot(h);
+
+        if a > -eps && a < eps {
             return None
         }
 
-        // Check for intersection with the triangle plane
-        let t = -(self.normal.dot(r.origin) + self.d) / normal_dot_direction;
-//        println!("{}", t);
+        let f = 1.0 / a;
+        let s = r.origin - self.v0;
+        let u = f * s.dot(h);
 
-        if t < t_min {
+        if u < 0.0 || u > 1.0 {
             return None
         }
 
-        let plane_hit = r.point_at_parameter(t);
+        let q = s.cross(edge1);
+        let v = f * r.direction.dot(q);
 
-        let edge0 = self.v1 - self.v0;
-        let vp0 = plane_hit - self.v0;
-        let c = edge0.cross(vp0);
-        if self.normal.dot(c) < 0.0 {
+        if v < 0.0 || u + v > 1.0 {
             return None
         }
 
-        let edge1 = self.v2 - self.v1;
-        let vp1 = plane_hit - self.v1;
-        let c1 = edge1.cross(vp1);
-        if self.normal.dot(c1) < 0.0 {
-            return None
+        let t = f * edge2.dot(q);
+
+        if t > t_min && t < t_max {
+            let plane_hit = r.point_at_parameter(t);
+            Some((SurfaceInteraction::new(t, plane_hit, self.normal), &self.material))
+        } else {
+            None
         }
 
-        let edge2 = self.v0 - self.v2;
-        let vp2 = plane_hit - self.v2;
-        let c2 = edge2.cross(vp2);
-        if self.normal.dot(c2) < 0.0 {
-            return None
-        }
 
-        Some((SurfaceInteraction::new(t, plane_hit, self.normal), &self.material))
     }
 }

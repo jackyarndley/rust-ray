@@ -31,19 +31,19 @@ fn color(r: Ray, world: &dyn Hitable, depth: usize) -> Vec3 {
 }
 
 fn main() {
-    let width: usize = 300;
-    let height: usize = 300;
+    let width: usize = 1200;
+    let height: usize = 500;
     let max_color: f64 = 255.999;
-    let samples = 128;
+    let samples = 256;
 
     let world = random_scene2();
 
-    let look_from = Vec3::new(16.0, 10.0, 4.0);
+    let look_from = Vec3::new(16.0, 2.0, 4.0);
     let look_at = Vec3::new(0.0, 0.0, 0.0);
     let dist_to_focus = (look_from - look_at).length();
-    let aperture = 0.0;
+    let aperture = 0.2;
 
-    let camera = Camera::new(look_from, look_at, Vec3::new(0.0, 1.0, 0.0), 25.0, width as f64 / height as f64, aperture, dist_to_focus);
+    let camera = Camera::new(look_from, look_at, Vec3::new(0.0, 1.0, 0.0), 15.0, width as f64 / height as f64, aperture, dist_to_focus);
 
     let pixels = (0..height)
         .into_par_iter()

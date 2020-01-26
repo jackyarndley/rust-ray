@@ -58,19 +58,36 @@ pub fn random_scene() -> HitableList {
 }
 
 pub fn random_scene2() -> HitableList {
+    let mut rng = thread_rng();
     let mut list: Vec<Box<dyn Hitable>> = vec![];
     list.push(Box::new(Sphere::new(Vec3::new(0.0, -1000.0, 0.0), 1000.0, Material::Lambertian {attenuation: Vec3::new(0.5, 0.5, 0.5)})));
-    list.push(Box::new(Sphere::new(Vec3::new(0.0, 1.0, 0.0), 1.0, Material::Lambertian {attenuation: Vec3::new(0.1, 0.1, 1.0)})));
-    list.push(Box::new(Sphere::new(Vec3::new(5.0, 0.0, 0.0), 1.0, Material::Lambertian {attenuation: Vec3::new(0.1, 1.0, 0.1)})));
-    list.push(Box::new(Sphere::new(Vec3::new(0.0, 0.0, 5.0), 1.0, Material::Lambertian {attenuation: Vec3::new(1.0, 0.1, 0.1)})));
 
-    list.push(Box::new(Triangle::new(Vec3::new(0.0, 1.0, 0.0), Vec3::new(0.0, 0.0, 5.0), Vec3::new(5.0, 0.0, 0.0), Material::Lambertian {attenuation: Vec3::new(0.4, 0.2, 0.1)})));
-    list.push(Box::new(Triangle::new2(Vec3::new(0.0, 1.0, -1.0), Vec3::new(0.86602497100830078, 1.0, 0.5), Vec3::new(-0.86602497100830078, 1.0, 0.5), Vec3::new(0.0, 1.0, 0.0), Material::Lambertian {attenuation: Vec3::new(0.4, 0.2, 0.1)})));
+    for a in -11..11 {
+        for b in -11..11 {
+            let choose_mat = rng.gen::<f64>();
+            let center = Vec3::new(a as f64 + 0.9 * rng.gen::<f64>(), 0.2, b as f64 + 0.9 * rng.gen::<f64>());
+            if (center - Vec3::new(4.0, 0.2, 0.0)).length() > 0.9 {
+                if choose_mat < 0.75 {
+                    list.push(Box::new(Sphere::new(center, 0.2, Material::Lambertian {attenuation: Vec3::new(rng.gen::<f64>() * rng.gen::<f64>(), rng.gen::<f64>() * rng.gen::<f64>(), rng.gen::<f64>() * rng.gen::<f64>())})));
+                } else if choose_mat < 0.90 {
+                    list.push(Box::new(Sphere::new(center, 0.2, Material::Metal {attenuation: Vec3::new(0.5 * (1.0 + rng.gen::<f64>()), 0.5 * (1.0 + rng.gen::<f64>()), 0.5 * (1.0 + rng.gen::<f64>())), fuzziness: 0.5 * rng.gen::<f64>()})));
+                } else if choose_mat < 0.975 {
+                    list.push(Box::new(Sphere::new(center, 0.2, Material::Dielectric {refraction: 1.5})));
+                } else {
+                    list.push(Box::new(Sphere::new(center, 0.2, Material::Emission {color: Vec3::new(rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>()) * 10.0})));
+                }
+            }
+        }
+    }
+
+    list.push(Box::new(Sphere::new(Vec3::new(0.0, 1.0, 0.0), 1.0, Material::Dielectric {refraction: 1.5})));
+    list.push(Box::new(Sphere::new(Vec3::new(-4.0, 1.0, 0.0), 1.0, Material::Lambertian {attenuation: Vec3::new(0.4, 0.2, 0.1)})));
+//    list.push(Box::new(Sphere::new(Vec3::new(4.0, 1.0, 0.0), 1.0, Material::Metal {attenuation: Vec3::new(0.7, 0.6, 0.5), fuzziness: 0.0})));
 
     let path = Path::new("untitled.obj");
 
-    let teapot = tobj::load_obj(path);
-    let (models, materials) = teapot.unwrap();
+    let obj = tobj::load_obj(path);
+    let (models, materials) = obj.unwrap();
 
     let mesh = &models[0].mesh;
 
@@ -84,12 +101,13 @@ pub fn random_scene2() -> HitableList {
             Vec3::new(mesh.positions[position_index1] as f64, mesh.positions[position_index1 + 1] as f64, mesh.positions[position_index1 + 2] as f64),
             Vec3::new(mesh.positions[position_index2] as f64, mesh.positions[position_index2 + 1] as f64, mesh.positions[position_index2 + 2] as f64),
             Vec3::new(mesh.normals[position_index] as f64, mesh.normals[position_index + 1] as f64, mesh.normals[position_index + 2] as f64),
-            Material::Lambertian {
-                attenuation: Vec3::new(0.4, 0.4, 0.4),
+            Material::Metal {
+                attenuation: Vec3::new(0.7, 0.6, 0.5),
+                fuzziness: 0.0
             }
         );
 
-//        list.push(Box::new(element));
+        list.push(Box::new(element));
     }
 
     HitableList::new(list)
