@@ -60,10 +60,10 @@ pub fn random_scene() -> HitableList {
 pub fn random_scene2() -> HitableList {
     let mut rng = thread_rng();
     let mut list: Vec<Box<dyn Hitable>> = vec![];
-    list.push(Box::new(Sphere::new(Vec3::new(0.0, -1000.0, 0.0), 1000.0, Material::Lambertian {attenuation: Vec3::new(0.5, 0.5, 0.5)})));
+//    list.push(Box::new(Sphere::new(Vec3::new(0.0, -1000.0, 0.0), 1000.0, Material::Lambertian {attenuation: Vec3::new(0.5, 0.5, 0.5)})));
 
-    for a in -11..11 {
-        for b in -11..11 {
+    for a in (-16..16).step_by(2) {
+        for b in (-16..16).step_by(2)  {
             let choose_mat = rng.gen::<f64>();
             let center = Vec3::new(a as f64 + 0.9 * rng.gen::<f64>(), 0.2, b as f64 + 0.9 * rng.gen::<f64>());
             if (center - Vec3::new(4.0, 0.2, 0.0)).length() > 0.9 {

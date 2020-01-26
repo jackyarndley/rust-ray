@@ -12,7 +12,7 @@ fn color(r: Ray, world: &dyn Hitable, depth: usize) -> Vec3 {
         Some((hit_record, material)) => {
             let (scattered, attenuation, b) = material.scatter(r, hit_record.normal, hit_record.point);
 
-            if depth < 8 && b {
+            if depth < 50 {
                 if b {
                     color(scattered, world, depth + 1) * attenuation
                 } else {
