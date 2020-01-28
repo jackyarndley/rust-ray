@@ -4,6 +4,6 @@ Rust implementation of a simple ray tracer. Based from the book 'Ray Tracing in 
 
 Several additional features have been added to the ray-tracer presented in the book. 
 
-- Emmissive materials have been added and which requires clamping the maximum pixel intensity (no HDR support).
+- Emissive materials have been added and which requires clamping the maximum pixel intensity (no HDR support).
 - Ray-triangle intersections are now possible, and custom meshes are able to be imported in the OBJ format. 
 - Algorithm parallelisation with rayon.
