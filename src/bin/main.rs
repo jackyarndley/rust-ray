@@ -9,34 +9,27 @@ use rayon::prelude::*;
 
 // Propagates the ray through the scene to get the color of the sample
 fn color(r: Ray, world: &dyn Hitable, depth: usize) -> Vec3 {
-    // t_min here is set to 0.001 to prevent some shadowing errors
-    match world.hit(r, 0.001, std::f64::INFINITY) {
-        Some((surface_interaction, material)) => {
-            match material.scatter(r, surface_interaction.normal, surface_interaction.point) {
-                Some((attenuation, None)) => {
-                    if depth < 50 {
+    if depth < 50 {
+        // t_min here is set to 0.001 to prevent some shadowing errors
+        match world.hit(r, 0.001, std::f64::INFINITY) {
+            Some((surface_interaction, material)) => {
+                match material.scatter(r, surface_interaction.normal, surface_interaction.point) {
+                    (attenuation, None) => {
                         attenuation
-                    } else {
-                        Vec3::new(0.0, 0.0, 0.0)
                     }
-                }
-                Some((attenuation, Some(scattered))) => {
-                    if depth < 50 {
+                    (attenuation, Some(scattered)) => {
                         color(scattered, world, depth + 1) * attenuation
-                    } else {
-                        Vec3::new(0.0, 0.0, 0.0)
                     }
-                }
-                None => {
-                    Vec3::new(0.0, 0.0, 0.0)
                 }
             }
+            None => {
+                let unit_direction: Vec3 = r.direction.unit();
+                let t: f64 = 0.5 * (unit_direction.y + 1.0);
+                Vec3::new(1.0, 1.0, 1.0) * (1.0 - t) + Vec3::new(0.5, 0.7, 1.0) * t
+            }
         }
-        None => {
-            let unit_direction: Vec3 = r.direction.unit();
-            let t: f64 = 0.5 * (unit_direction.y + 1.0);
-            Vec3::new(1.0, 1.0, 1.0) * (1.0 - t) + Vec3::new(0.5, 0.7, 1.0) * t
-        }
+    } else {
+        Vec3::new(0.0, 0.0, 0.0)
     }
 }
 

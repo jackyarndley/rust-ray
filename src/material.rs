@@ -22,13 +22,13 @@ pub enum Material {
 }
 
 impl Material {
-    pub fn scatter(&self, r: Ray, n: Vec3, p: Vec3) -> Option<(Vec3, Option<Ray>)> {
+    pub fn scatter(&self, r: Ray, n: Vec3, p: Vec3) -> (Vec3, Option<Ray>) {
         match self {
             Material::Lambertian {
                 attenuation
             } => {
                 let target = p + n + Vec3::random_in_unit_sphere(thread_rng());
-                Some((*attenuation, Some(Ray::new(p, target - p))))
+                (*attenuation, Some(Ray::new(p, target - p)))
             }
             Material::Metal {
                 attenuation,
@@ -39,9 +39,9 @@ impl Material {
 
                 // Check to make sure the ray is not reflecting in the same direction
                 if scattered.direction.dot(n) > 0.0 {
-                    Some((*attenuation, Some(scattered)))
+                    (*attenuation, Some(scattered))
                 } else {
-                    None
+                    (Vec3::new(0.0, 0.0, 0.0), None)
                 }
             }
             Material::Dielectric {
@@ -75,13 +75,13 @@ impl Material {
                     }
                     None => Ray::new(p, reflected)
                 };
-                let attenuation = Vec3::new(1.0, 1.0, 1.0);
-                Some((attenuation, Some(scattered)))
+
+                (Vec3::new(1.0, 1.0, 1.0), Some(scattered))
             }
             Material::Emission {
                 color
             } => {
-                Some((*color, None))
+                (*color, None)
             }
         }
     }
