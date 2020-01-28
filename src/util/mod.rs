@@ -1,10 +1,19 @@
 use crate::objects::{Hitable, Triangle};
 use crate::material::Material;
-use crate::vec3::Vec3;
 use rand::{Rng, thread_rng};
 use std::path::Path;
 
 pub mod scenes;
+pub mod camera;
+pub mod vec3;
+pub mod ray;
+pub mod sample;
+
+pub use scenes::*;
+pub use camera::*;
+pub use vec3::*;
+pub use ray::*;
+pub use sample::*;
 
 // Clamps a value between two bounds
 pub fn clamp<T: PartialOrd>(value: T, lower: T, upper: T) -> T {

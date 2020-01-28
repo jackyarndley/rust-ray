@@ -1,9 +1,8 @@
 use crate::objects::{HitableList, Sphere, Hitable, Triangle};
-use rand::{thread_rng, Rng};
-use crate::vec3::Vec3;
 use crate::material::Material;
-use crate::util::load_model;
-use crate::camera::Camera;
+use crate::util::{load_model, Vec3, Camera};
+
+use rand::{thread_rng, Rng};
 
 pub fn simple_scene(width: usize, height: usize) -> (Camera, HitableList) {
     let look_from = Vec3::new(16.0, 4.0, 0.0);
@@ -18,7 +17,7 @@ pub fn simple_scene(width: usize, height: usize) -> (Camera, HitableList) {
     list.push(Box::new(Triangle::new2(Vec3::new(-1000.0, 0.0, -1000.0), Vec3::new(1000.0, 0.0, -1000.0), Vec3::new(-1000.0, 0.0, 1000.0), Vec3::new(0.0, 1.0, 0.0), Material::Lambertian {attenuation: Vec3::new(0.5, 0.5, 0.5)})));
 
     list.push(Box::new(Sphere::new(Vec3::new(0.0, 1.0, -3.375), 1.0, Material::Dielectric {refraction: 1.5})));
-    list.push(Box::new(Sphere::new(Vec3::new(0.0, 1.0, -1.125), 1.0, Material::Metal {attenuation: Vec3::new(189.0 / 255.0, 67.0 / 255.0, 0.0), fuzziness: 0.05})));
+    list.push(Box::new(Sphere::new(Vec3::new(0.0, 1.0, -1.125), 1.0, Material::Metal {attenuation: Vec3::new(212.0 / 255.0, 105.0 / 255.0, 33.0 / 255.0), fuzziness: 0.0})));
     list.push(Box::new(Sphere::new(Vec3::new(0.0, 1.0, 1.125), 1.0, Material::Lambertian {attenuation: Vec3::new(167.0 / 255.0, 51.0 / 255.0, 0.0)})));
     list.push(Box::new(Sphere::new(Vec3::new(0.0, 1.0, 3.375), 1.0, Material::Emission {color: Vec3::new(227.0 / 255.0 * 4.0, 160.0 / 255.0 * 4.0, 1.0)})));
 

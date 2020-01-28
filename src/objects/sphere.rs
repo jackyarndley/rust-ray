@@ -1,7 +1,6 @@
-use crate::vec3::Vec3;
 use crate::material::Material;
 use crate::objects::{Hitable, SurfaceInteraction};
-use crate::ray::Ray;
+use crate::util::{Vec3, Ray};
 
 pub struct Sphere {
     center: Vec3,

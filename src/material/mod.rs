@@ -1,9 +1,6 @@
-use crate::vec3::Vec3;
 use rand::{thread_rng, Rng};
-use crate::ray::Ray;
-use crate::util::{reflect, refract, schlick};
+use crate::util::{reflect, refract, schlick, Vec3, Ray};
 
-// The attenuation here is the amount of each RGB colour which is dissipated with each bounce
 #[derive(Copy, Clone)]
 pub enum Material {
     Lambertian {

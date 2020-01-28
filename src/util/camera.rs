@@ -1,6 +1,4 @@
-use crate::vec3::Vec3;
-use crate::ray::Ray;
-use crate::util::random_in_unit_disk;
+use crate::util::{random_in_unit_disk, Vec3, Ray};
 
 pub struct Camera {
     lower_left_corner: Vec3,
