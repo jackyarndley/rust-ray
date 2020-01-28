@@ -24,14 +24,11 @@ pub fn simple_scene(width: usize, height: usize) -> (Camera, HitableList) {
     (camera, HitableList::new(list))
 }
 
-pub fn random_scene() -> (Camera, HitableList) {
+pub fn random_scene(width: usize, height: usize) -> (Camera, HitableList) {
     let look_from = Vec3::new(16.0, 2.0, 4.0);
     let look_at = Vec3::new(0.0, 0.0, 0.0);
     let dist_to_focus = (look_from - look_at).length();
     let aperture = 0.2;
-
-    let width: usize = 1200;
-    let height: usize = 500;
 
     let camera = Camera::new(look_from, look_at, Vec3::new(0.0, 1.0, 0.0), 15.0, width as f64 / height as f64, aperture, dist_to_focus);
 
@@ -64,14 +61,11 @@ pub fn random_scene() -> (Camera, HitableList) {
     (camera, HitableList::new(list))
 }
 
-pub fn random_scene2() -> (Camera, HitableList) {
+pub fn random_scene2(width: usize, height: usize) -> (Camera, HitableList) {
     let look_from = Vec3::new(16.0, 2.0, 4.0);
     let look_at = Vec3::new(0.0, 0.0, 0.0);
     let dist_to_focus = (look_from - look_at).length();
     let aperture = 0.2;
-
-    let width: usize = 1200;
-    let height: usize = 500;
 
     let camera = Camera::new(look_from, look_at, Vec3::new(0.0, 1.0, 0.0), 15.0, width as f64 / height as f64, aperture, dist_to_focus);
 
