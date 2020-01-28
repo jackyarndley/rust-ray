@@ -29,7 +29,7 @@ pub trait Hitable: Sync {
 }
 
 pub struct HitableList {
-    list: Vec<Box<dyn Hitable>>
+    pub list: Vec<Box<dyn Hitable>>
 }
 
 impl HitableList {

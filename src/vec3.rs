@@ -110,3 +110,13 @@ impl ops::AddAssign for Vec3 {
         }
     }
 }
+
+impl ops::MulAssign for Vec3 {
+    fn mul_assign(&mut self, other: Vec3) {
+        *self = Self {
+            x: self.x * other.x,
+            y: self.y * other.y,
+            z: self.z * other.z
+        }
+    }
+}
