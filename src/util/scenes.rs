@@ -1,20 +1,41 @@
-use crate::objects::{HitableList, Sphere, Hitable};
+use crate::objects::{HitableList, Sphere, Hitable, Triangle};
 use rand::{thread_rng, Rng};
 use crate::vec3::Vec3;
 use crate::material::Material;
 use crate::util::load_model;
+use crate::camera::Camera;
 
-pub fn simple_scene() -> HitableList {
+pub fn simple_scene(width: usize, height: usize) -> (Camera, HitableList) {
+    let look_from = Vec3::new(16.0, 4.0, 0.0);
+    let look_at = Vec3::new(0.0, 0.8, 0.0);
+    let dist_to_focus = (look_from - look_at).length();
+    let aperture = 0.0;
+
+    let camera = Camera::new(look_from, look_at, Vec3::new(0.0, 1.0, 0.0), 12.0, width as f64 / height as f64, aperture, dist_to_focus);
+
     let mut list: Vec<Box<dyn Hitable>> = vec![];
-    list.push(Box::new(Sphere::new(Vec3::new(0.0, -1000.0, 0.0), 1000.0, Material::Lambertian {attenuation: Vec3::new(0.5, 0.5, 0.5)})));
-    list.push(Box::new(Sphere::new(Vec3::new(0.0, 1.0, 0.0), 1.0, Material::Dielectric {refraction: 1.5})));
-    list.push(Box::new(Sphere::new(Vec3::new(-4.0, 1.0, 0.0), 1.0, Material::Lambertian {attenuation: Vec3::new(0.4, 0.2, 0.1)})));
-    list.push(Box::new(Sphere::new(Vec3::new(4.0, 1.0, 0.0), 1.0, Material::Metal {attenuation: Vec3::new(0.7, 0.6, 0.5), fuzziness: 0.0})));
+    list.push(Box::new(Triangle::new2(Vec3::new(1000.0, 0.0, 1000.0), Vec3::new(-1000.0, 0.0, 1000.0), Vec3::new(1000.0, 0.0, -1000.0), Vec3::new(0.0, 1.0, 0.0), Material::Lambertian {attenuation: Vec3::new(0.5, 0.5, 0.5)})));
+    list.push(Box::new(Triangle::new2(Vec3::new(-1000.0, 0.0, -1000.0), Vec3::new(1000.0, 0.0, -1000.0), Vec3::new(-1000.0, 0.0, 1000.0), Vec3::new(0.0, 1.0, 0.0), Material::Lambertian {attenuation: Vec3::new(0.5, 0.5, 0.5)})));
 
-    HitableList::new(list)
+    list.push(Box::new(Sphere::new(Vec3::new(0.0, 1.0, -3.375), 1.0, Material::Dielectric {refraction: 1.5})));
+    list.push(Box::new(Sphere::new(Vec3::new(0.0, 1.0, -1.125), 1.0, Material::Metal {attenuation: Vec3::new(189.0 / 255.0, 67.0 / 255.0, 0.0), fuzziness: 0.05})));
+    list.push(Box::new(Sphere::new(Vec3::new(0.0, 1.0, 1.125), 1.0, Material::Lambertian {attenuation: Vec3::new(167.0 / 255.0, 51.0 / 255.0, 0.0)})));
+    list.push(Box::new(Sphere::new(Vec3::new(0.0, 1.0, 3.375), 1.0, Material::Emission {color: Vec3::new(227.0 / 255.0 * 4.0, 160.0 / 255.0 * 4.0, 1.0)})));
+
+    (camera, HitableList::new(list))
 }
 
-pub fn random_scene() -> HitableList {
+pub fn random_scene() -> (Camera, HitableList) {
+    let look_from = Vec3::new(16.0, 2.0, 4.0);
+    let look_at = Vec3::new(0.0, 0.0, 0.0);
+    let dist_to_focus = (look_from - look_at).length();
+    let aperture = 0.2;
+
+    let width: usize = 1200;
+    let height: usize = 500;
+
+    let camera = Camera::new(look_from, look_at, Vec3::new(0.0, 1.0, 0.0), 15.0, width as f64 / height as f64, aperture, dist_to_focus);
+
     let mut rng = thread_rng();
     let mut list: Vec<Box<dyn Hitable>> = vec![];
     list.push(Box::new(Sphere::new(Vec3::new(0.0, -1000.0, 0.0), 1000.0, Material::Lambertian {attenuation: Vec3::new(0.5, 0.5, 0.5)})));
@@ -41,10 +62,20 @@ pub fn random_scene() -> HitableList {
     list.push(Box::new(Sphere::new(Vec3::new(-4.0, 1.0, 0.0), 1.0, Material::Lambertian {attenuation: Vec3::new(0.4, 0.2, 0.1)})));
     list.push(Box::new(Sphere::new(Vec3::new(4.0, 1.0, 0.0), 1.0, Material::Metal {attenuation: Vec3::new(0.7, 0.6, 0.5), fuzziness: 0.0})));
 
-    HitableList::new(list)
+    (camera, HitableList::new(list))
 }
 
-pub fn random_scene2() -> HitableList {
+pub fn random_scene2() -> (Camera, HitableList) {
+    let look_from = Vec3::new(16.0, 2.0, 4.0);
+    let look_at = Vec3::new(0.0, 0.0, 0.0);
+    let dist_to_focus = (look_from - look_at).length();
+    let aperture = 0.2;
+
+    let width: usize = 1200;
+    let height: usize = 500;
+
+    let camera = Camera::new(look_from, look_at, Vec3::new(0.0, 1.0, 0.0), 15.0, width as f64 / height as f64, aperture, dist_to_focus);
+
     let mut list: Vec<Box<dyn Hitable>> = vec![];
 
     list.push(Box::new(Sphere::new(Vec3::new(0.0, 1.0, 0.0), 1.0, Material::Dielectric {refraction: 1.5})));
@@ -52,5 +83,5 @@ pub fn random_scene2() -> HitableList {
 
     load_model(&mut list, "untitled.obj");
 
-    HitableList::new(list)
+    (camera, HitableList::new(list))
 }

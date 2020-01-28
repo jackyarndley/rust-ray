@@ -34,58 +34,54 @@ impl<'a> Iterator for Sample<'a> {
 
     // Propagates the ray through the scene to get the color of the sample
     fn next(&mut self) -> Option<Vec3> {
-        if self.depth < self.max_depth {
-            match self.ray {
-                Some(ray) => {
-                    // t_min here is set to 0.001 to prevent some shadowing errors
-                    match self.world.hit(ray, 0.001, std::f64::INFINITY) {
-                        Some((surface_interaction, material)) => {
-                            match material.scatter(ray, surface_interaction.normal, surface_interaction.point) {
-                                (attenuation, None) => {
-                                    self.color *= attenuation;
-                                    self.ray = None;
-                                }
-                                (attenuation, Some(scattered)) => {
-                                    self.color *= attenuation;
+        match self.ray {
+            Some(ray) => {
+                // t_min here is set to 0.001 to prevent some shadowing errors
+                match self.world.hit(ray, 0.001, std::f64::INFINITY) {
+                    Some((surface_interaction, material)) => {
+                        match material.scatter(ray, surface_interaction.normal, surface_interaction.point) {
+                            (attenuation, None) => {
+                                self.color *= attenuation;
+                                self.ray = None;
+                            }
+                            (attenuation, Some(scattered)) => {
+                                self.color *= attenuation;
+
+                                if self.depth < self.max_depth {
+                                    self.depth += 1;
                                     self.ray = Some(scattered);
+                                } else {
+                                    self.ray = None
                                 }
                             }
                         }
-                        None => {
-                            let unit_direction: Vec3 = ray.direction.unit();
-                            let t: f64 = 0.5 * (unit_direction.y + 1.0);
-                            self.color *= Vec3::new(1.0, 1.0, 1.0) * (1.0 - t) + Vec3::new(0.5, 0.7, 1.0) * t;
-                            self.ray = None;
-                        }
                     }
-                    Some(self.color)
+                    None => {
+                        // This is the sky color and falloff
+                        let unit_direction: Vec3 = ray.direction.unit();
+                        let t: f64 = 0.5 * (unit_direction.y + 1.0);
+                        self.color *= Vec3::new(1.0, 1.0, 1.0) * (1.0 - t) + Vec3::new(0.5, 0.7, 1.0) * t;
+                        self.ray = None;
+                    }
                 }
-                None => {
-                    None
-                }
+                Some(self.color)
             }
-        } else {
-            None
+            None => {
+                None
+            }
         }
     }
 }
 
 fn main() {
-    let width: usize = 300;
-    let height: usize = 125;
+    let width: usize = 2400;
+    let height: usize = 800;
     let max_color: f64 = 255.999;
-    let samples = 64;
+    let samples = 128;
     let time = Instant::now();
 
     print!("Building environment...");
-    let world = simple_scene();
-
-    let look_from = Vec3::new(16.0, 2.0, 4.0);
-    let look_at = Vec3::new(0.0, 0.0, 0.0);
-    let dist_to_focus = (look_from - look_at).length();
-    let aperture = 0.2;
-
-    let camera = Camera::new(look_from, look_at, Vec3::new(0.0, 1.0, 0.0), 15.0, width as f64 / height as f64, aperture, dist_to_focus);
+    let (camera, world) = simple_scene(width, height);
 
     println!(" {} objects, {}ms", world.list.len(), time.elapsed().as_millis());
     let time = Instant::now();
