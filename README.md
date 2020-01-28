@@ -1,6 +1,6 @@
 ![rust-ray](output.png)
 # rust-ray
-Rust implementation of a simple ray tracer. Based from the book 'Ray Tracing in One Weekend' by Peter Shirley. 
+Rust implementation of a simple ray tracer. Based on the book 'Ray Tracing in One Weekend' by Peter Shirley. 
 
 Several additional features have been added to the ray-tracer presented in the book. 
 
