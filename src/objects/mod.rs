@@ -45,10 +45,10 @@ impl Hitable for HitableList {
         let mut closest_so_far = t_max;
         let mut res = None;
 
-        for h in self.list.iter() {
-            if let Some((hit_record, material)) = h.hit(ray, t_min, closest_so_far) {
-                closest_so_far = hit_record.t;
-                res = Some((hit_record, material));
+        for object in self.list.iter() {
+            if let Some((surface_interaction, material)) = object.hit(ray, t_min, closest_so_far) {
+                closest_so_far = surface_interaction.t;
+                res = Some((surface_interaction, material));
             }
         }
         res
