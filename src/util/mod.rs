@@ -27,6 +27,26 @@ pub fn random_in_unit_disk() -> Vec3 {
     p
 }
 
+pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
+    v - n * 2.0 * v.dot(n)
+}
+
+pub fn refract(v: Vec3, n: Vec3, ni_over_nt: f64) -> Option<Vec3> {
+    let uv = v.unit();
+    let dt = uv.dot(n);
+    let discriminant = 1.0 - ni_over_nt * ni_over_nt * (1.0 - dt * dt);
+    if discriminant > 0.0 {
+        Some((uv - n * dt) * ni_over_nt - n * discriminant.sqrt())
+    } else {
+        None
+    }
+}
+
+pub fn schlick(cosine: f64, refraction: f64) -> f64 {
+    let r0 = ((1.0 - refraction) / (1.0 + refraction)).powf(2.0);
+    r0 + (1.0 - r0) * (1.0 - cosine).powf(5.0)
+}
+
 pub fn load_model(list: &mut Vec<Box<dyn Hitable>>, model_name: &str) {
     let mut rng = thread_rng();
     let path = Path::new(model_name);

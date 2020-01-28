@@ -7,19 +7,29 @@ use rust_ray::util::{clamp, random_scene2};
 use rand::{thread_rng, Rng};
 use rayon::prelude::*;
 
+// Propagates the ray through the scene to get the color of the sample
 fn color(r: Ray, world: &dyn Hitable, depth: usize) -> Vec3 {
+    // t_min here is set to 0.001 to prevent some shadowing errors
     match world.hit(r, 0.001, std::f64::INFINITY) {
-        Some((hit_record, material)) => {
-            let (scattered, attenuation, b) = material.scatter(r, hit_record.normal, hit_record.point);
-
-            if depth < 50 {
-                if b {
-                    color(scattered, world, depth + 1) * attenuation
-                } else {
-                    attenuation
+        Some((surface_interaction, material)) => {
+            match material.scatter(r, surface_interaction.normal, surface_interaction.point) {
+                Some((attenuation, None)) => {
+                    if depth < 50 {
+                        attenuation
+                    } else {
+                        Vec3::new(0.0, 0.0, 0.0)
+                    }
                 }
-            } else {
-                Vec3::new(0.0, 0.0, 0.0)
+                Some((attenuation, Some(scattered))) => {
+                    if depth < 50 {
+                        color(scattered, world, depth + 1) * attenuation
+                    } else {
+                        Vec3::new(0.0, 0.0, 0.0)
+                    }
+                }
+                None => {
+                    Vec3::new(0.0, 0.0, 0.0)
+                }
             }
         }
         None => {

@@ -1,26 +1,7 @@
 use crate::vec3::Vec3;
 use rand::{thread_rng, Rng};
 use crate::ray::Ray;
-
-fn reflect(v: Vec3, n: Vec3) -> Vec3 {
-    v - n * 2.0 * v.dot(n)
-}
-
-fn refract(v: Vec3, n: Vec3, ni_over_nt: f64) -> Option<Vec3> {
-    let uv = v.unit();
-    let dt = uv.dot(n);
-    let discriminant = 1.0 - ni_over_nt * ni_over_nt * (1.0 - dt * dt);
-    if discriminant > 0.0 {
-        Some((uv - n * dt) * ni_over_nt - n * discriminant.sqrt())
-    } else {
-        None
-    }
-}
-
-fn schlick(cosine: f64, refraction: f64) -> f64 {
-    let r0 = ((1.0 - refraction) / (1.0 + refraction)).powf(2.0);
-    r0 + (1.0 - r0) * (1.0 - cosine).powf(5.0)
-}
+use crate::util::{reflect, refract, schlick};
 
 // The attenuation here is the amount of each RGB colour which is dissipated with each bounce
 #[derive(Copy, Clone)]
@@ -41,13 +22,13 @@ pub enum Material {
 }
 
 impl Material {
-    pub fn scatter(&self, r: Ray, n: Vec3, p: Vec3) -> (Ray, Vec3, bool) {
+    pub fn scatter(&self, r: Ray, n: Vec3, p: Vec3) -> Option<(Vec3, Option<Ray>)> {
         match self {
             Material::Lambertian {
                 attenuation
             } => {
                 let target = p + n + Vec3::random_in_unit_sphere(thread_rng());
-                (Ray::new(p, target - p), *attenuation, true)
+                Some((*attenuation, Some(Ray::new(p, target - p))))
             }
             Material::Metal {
                 attenuation,
@@ -57,15 +38,11 @@ impl Material {
                 let scattered = Ray::new(p, reflected + Vec3::random_in_unit_sphere(thread_rng()) * *fuzziness);
 
                 // Check to make sure the ray is not reflecting in the same direction
-                let b = scattered.direction.dot(n) > 0.0;
-
-                let color = if b {
-                    *attenuation
+                if scattered.direction.dot(n) > 0.0 {
+                    Some((*attenuation, Some(scattered)))
                 } else {
-                    Vec3::new(0.0, 0.0, 0.0)
-                };
-
-                (scattered, color, b)
+                    None
+                }
             }
             Material::Dielectric {
                 refraction
@@ -85,6 +62,7 @@ impl Material {
                         -(r.direction.dot(n)) / r.direction.length()
                     )
                 };
+
                 let scattered = match refract(r.direction, outward_normal, ni_over_nt) {
                     Some(refracted) => {
                         let reflect_prob = schlick(cosine, *refraction);
@@ -98,12 +76,12 @@ impl Material {
                     None => Ray::new(p, reflected)
                 };
                 let attenuation = Vec3::new(1.0, 1.0, 1.0);
-                (scattered, attenuation, true)
+                Some((attenuation, Some(scattered)))
             }
             Material::Emission {
                 color
             } => {
-                (Ray::new(p, p), *color, false)
+                Some((*color, None))
             }
         }
     }
