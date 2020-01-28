@@ -13,8 +13,8 @@ pub fn simple_scene(width: usize, height: usize) -> (Camera, HitableList) {
     let camera = Camera::new(look_from, look_at, Vec3::new(0.0, 1.0, 0.0), 12.0, width as f64 / height as f64, aperture, dist_to_focus);
 
     let mut list: Vec<Box<dyn Hitable>> = vec![];
-    list.push(Box::new(Triangle::new2(Vec3::new(1000.0, 0.0, 1000.0), Vec3::new(-1000.0, 0.0, 1000.0), Vec3::new(1000.0, 0.0, -1000.0), Vec3::new(0.0, 1.0, 0.0), Material::Lambertian {attenuation: Vec3::new(0.5, 0.5, 0.5)})));
-    list.push(Box::new(Triangle::new2(Vec3::new(-1000.0, 0.0, -1000.0), Vec3::new(1000.0, 0.0, -1000.0), Vec3::new(-1000.0, 0.0, 1000.0), Vec3::new(0.0, 1.0, 0.0), Material::Lambertian {attenuation: Vec3::new(0.5, 0.5, 0.5)})));
+    list.push(Box::new(Triangle::new(Vec3::new(1000.0, 0.0, 1000.0), Vec3::new(-1000.0, 0.0, 1000.0), Vec3::new(1000.0, 0.0, -1000.0), Vec3::new(0.0, 1.0, 0.0), Material::Lambertian {attenuation: Vec3::new(0.5, 0.5, 0.5)})));
+    list.push(Box::new(Triangle::new(Vec3::new(-1000.0, 0.0, -1000.0), Vec3::new(1000.0, 0.0, -1000.0), Vec3::new(-1000.0, 0.0, 1000.0), Vec3::new(0.0, 1.0, 0.0), Material::Lambertian {attenuation: Vec3::new(0.5, 0.5, 0.5)})));
 
     list.push(Box::new(Sphere::new(Vec3::new(0.0, 1.0, -3.375), 1.0, Material::Dielectric {refraction: 1.5})));
     list.push(Box::new(Sphere::new(Vec3::new(0.0, 1.0, -1.125), 1.0, Material::Metal {attenuation: Vec3::new(212.0 / 255.0, 105.0 / 255.0, 33.0 / 255.0), fuzziness: 0.0})));

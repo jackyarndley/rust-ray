@@ -11,18 +11,7 @@ pub struct Triangle {
 }
 
 impl Triangle {
-    pub fn new(v0: Vec3, v1: Vec3, v2: Vec3, material: Material) -> Self {
-        let normal = (v1 - v0).cross(v2 - v0).unit();
-        Triangle {
-            v0,
-            v1,
-            v2,
-            normal,
-            material
-        }
-    }
-
-    pub fn new2(v0: Vec3, v1: Vec3, v2: Vec3, normal: Vec3, material: Material) -> Self {
+    pub fn new(v0: Vec3, v1: Vec3, v2: Vec3, normal: Vec3, material: Material) -> Self {
         Triangle {
             v0,
             v1,

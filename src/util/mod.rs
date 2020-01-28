@@ -107,7 +107,7 @@ pub fn load_model(list: &mut Vec<Box<dyn Hitable>>, model_name: &str) {
             let position_index1 = 3 * mesh.indices[3 * f + 1] as usize;
             let position_index2 = 3 * mesh.indices[3 * f + 2] as usize;
 
-            let element = Triangle::new2(
+            let element = Triangle::new(
                 Vec3::new(mesh.positions[position_index] as f64, mesh.positions[position_index + 1] as f64, mesh.positions[position_index + 2] as f64),
                 Vec3::new(mesh.positions[position_index1] as f64, mesh.positions[position_index1 + 1] as f64, mesh.positions[position_index1 + 2] as f64),
                 Vec3::new(mesh.positions[position_index2] as f64, mesh.positions[position_index2 + 1] as f64, mesh.positions[position_index2 + 2] as f64),
